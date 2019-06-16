@@ -25,7 +25,8 @@ def select_query(query):
 def popular_articles():
     results = select_query("SELECT title, count(*) as views "
                            "FROM articles JOIN log "
-                           "ON articles.slug = substring(log.path, 10) "
+                           "ON articles.slug  = substring(log.path, 10) "
+                           "WHERE log.status = '200 OK'"
                            "GROUP BY title ORDER BY views DESC LIMIT 3;")
     print('\nDisplaying the most popular articles of all time:')
     for i in results:
@@ -37,7 +38,7 @@ def popular_authors():
                            "FROM articles JOIN authors "
                            "ON articles.author = authors.id JOIN log "
                            "ON articles.slug = substring(log.path, 10) "
-                           "WHERE log.status LIKE '200 OK' "
+                           "WHERE log.status = '200 OK' "
                            "GROUP BY authors.name ORDER BY views DESC;")
     print('\nDisplaying the most popular authors of all time:')
     for i in results:
