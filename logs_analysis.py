@@ -1,24 +1,18 @@
 # Logs Analysis Project
-# -*- coding: utf-8 -*- To support UTF-8 characters like: —
+# -*- coding: utf-8 -*-  "" To support UTF-8 characters like: —
 # !/usr/bin/env python
 
 
 import psycopg2
 
 
-def select_query(query, fetch=True):
+def select_query(query):
     # Connecting to database
     try:
         connection = psycopg2.connect(database="news")
-        # print("\nPostgreSQL connection is open")
         cursor = connection.cursor()
         cursor.execute(query)
-        # print("PostgreSQL query execute")
-        if(fetch):
-            return cursor.fetchall()
-        else:
-            connection.commit()
-            return True
+        return cursor.fetchall()
     except (Exception, psycopg2.Error) as error:
         print ("Error while fetching data from PostgreSQL", error)
     finally:
@@ -26,7 +20,6 @@ def select_query(query, fetch=True):
         if(connection):
             cursor.close()
             connection.close()
-            # print("PostgreSQL connection is closed")
 
 
 def popular_articles():
@@ -36,7 +29,7 @@ def popular_articles():
                            "GROUP BY title ORDER BY views DESC LIMIT 3;")
     print('\nDisplaying the most popular articles of all time:')
     for i in results:
-        print(' ' + str(i[0]) + ' — ' + str(i[1]) + ' views')
+        print(' "' + str(i[0]) + '" — ' + str(i[1]) + ' views')
 
 
 def popular_authors():
@@ -48,26 +41,11 @@ def popular_authors():
                            "GROUP BY authors.name ORDER BY views DESC;")
     print('\nDisplaying the most popular authors of all time:')
     for i in results:
-        print(' ' + str(i[0]) + ' — ' + str(i[1]) + ' views')
-
-
-def create_views():
-    create_view_logs = "CREATE OR REPLACE VIEW logs_view AS " \
-                       "SELECT to_char(time,'DD-MON-YYYY') as date, " \
-                       "count(*) as log_count " \
-                       "FROM log GROUP BY date;"
-    select_query(create_view_logs, False)
-
-    create_view_error_logs = "CREATE OR REPLACE VIEW error_logs_view AS " \
-                             "SELECT to_char(time,'DD-MON-YYYY') as date, " \
-                             "count(*) as error_count " \
-                             "FROM log WHERE STATUS = '404 NOT FOUND' " \
-                             "GROUP BY date;"
-    select_query(create_view_error_logs, False)
+        print(' "' + str(i[0]) + '" — ' + str(i[1]) + ' views')
 
 
 def request_errors():
-    create_views()
+    # Create Views as shown in the README file.
     results = select_query("SELECT error_logs_view.date, "
                            "round(100.0 * error_logs_view.error_count"
                            "/ logs_view.log_count, 2) "
